@@ -10,11 +10,10 @@ This code file follows the code format from:
 '''
 import math 
 import os.path as osp
-from turtle import forward 
 
 import torch
 import torch.nn as nn 
-
+from einops import reduce 
 
 
 # Set operation tools 
@@ -26,9 +25,10 @@ def conv_bn(inp, oup, stride):
         nn.ReLU6(inplace=True),
     )
 
-def conv_1x1x1_bn(inp, oup): 
+def conv_1x1_bn(inp, oup): 
     return nn.Sequential(
         nn.Conv2d(inp, oup, 1, 1, 0, bias=False),
+        nn.BatchNorm2d(oup),
         nn.ReLU6(inplace=True),
     )
 
@@ -97,4 +97,77 @@ class MobileNetV2(nn.Module):
         # building first layer 
         # -----------------------
         assert input_size % 32 == 0, f"MobileNetV2 in {osp.basename(__file__)}: should be 'input_size % 32 == 0'"
+        
+        input_channel = int(input_channel * width_mult)
+        self.last_channel = int(last_channel * width_mult) if width_mult > 1.0 else last_channel 
+        self.features = [conv_bn(inp=3, oup=input_channel, stride=2)]
+
+        # building inverted residual blocks 
+        # ------------------------
+        for t, c, n, s in interverted_residual_setting: 
+            output_channel = int(c * width_mult) 
+
+            for i in range(n): 
+                stride = s if i==0 else 1
+                self.features.append(block(inp=input_channel, oup=output_channel, stride=stride, expand_ratio=t))
+                
+                input_channel = output_channel
+            
+        # building last several layers 
+        # ----------------------------
+        self.features.append(conv_1x1_bn(inp=input_channel, oup=self.last_channel))
+
+        # make them in nn.Sequential 
+        # ----------------------------
+        self.features = nn.Sequential(*self.features) 
+
+        # building classifier 
+        # ----------------------------
+        self.classifier = nn.Sequential(
+            nn.Dropout(0.2),
+            nn.Linear(self.last_channel, n_class),
+        )
+    
+    def forward(self, x:torch.Tensor):
+        assert x.ndimension() == 4, f"input tensor should be 4D, but given {x.ndimension()}D"
+        x = self.features(x) # 4d tensor 
+        x = self.gspool(x, 'mean') # 2d tensor 
+
+        assert x.size(-1) == self.last_channel 
+        x = self.classifier(x)
+        return x 
+
+
+
+    # global spatial pooling 
+    def gspool(self, h:torch.Tensor, op:str):
+        if op == 'mean':
+            return reduce(h, 'b c h w -> b c', 'mean')
+        elif op == 'sum':
+            return reduce(h, 'b c h w -> b c', 'sum')
+        elif op == 'max':
+            return reduce(h, 'b c h w -> b c', 'max')
+
+
+
+# Get model 
+# ------------------
+def get_model(**kwargs):
+    model = MobileNetV2(**kwargs)
+    return model 
+
+
+if __name__ == "__main__":
+    # Checking 
+    model = get_model(n_class=5, input_size=224, width_mult=1.)
+#    print(model)
+
+    input = torch.randn(4, 3, 224, 224)
+    output = model(input)
+    print(output.size())
+
+
+
+
+        
         
