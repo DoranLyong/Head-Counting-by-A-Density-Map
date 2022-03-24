@@ -1,4 +1,4 @@
-# Object Counting by A Density Map
+# Head Counting by A Density Map
 
 In this tutorial, a simple object counter by estimating a density map is included. <br/>
 
