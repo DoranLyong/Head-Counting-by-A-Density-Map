@@ -127,7 +127,9 @@ class MobileNetV2(nn.Module):
             nn.Dropout(0.2),
             nn.Linear(self.last_channel, n_class),
         )
-    
+        
+        self._initialize_weights()
+
     def forward(self, x:torch.Tensor):
         assert x.ndimension() == 4, f"input tensor should be 4D, but given {x.ndimension()}D"
         x = self.features(x) # 4d tensor 
@@ -139,7 +141,8 @@ class MobileNetV2(nn.Module):
 
 
 
-    # global spatial pooling 
+    # global spatial pooling
+    # ----------------------- 
     def gspool(self, h:torch.Tensor, op:str):
         if op == 'mean':
             return reduce(h, 'b c h w -> b c', 'mean')
@@ -148,6 +151,25 @@ class MobileNetV2(nn.Module):
         elif op == 'max':
             return reduce(h, 'b c h w -> b c', 'max')
 
+    # init. weights 
+    # ------------------------
+    def _initialize_weights(self):
+        # (ref) https://blogofth-lee.tistory.com/264
+        for m in self.modules(): 
+            print(f"Initialization!!! {m}")
+            
+            if isinstance(m, nn.Conv2d): 
+                n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels # kernel elements; h x w x c
+                m.weight.data.normal_(0, math.sqrt(2. / n))
+                if m.bias is not None: 
+                    m.bias.data.zero_()
+            elif isinstance(m, nn.BatchNorm2d): 
+                m.weight.data.fill_(1)
+                m.bias.data.zero_()
+            elif isinstance(m, nn.Linear):
+                n = m.weight.size(1) 
+                m.weight.data.normal_(0, 0.01)
+                m.bias.data.zero_()
 
 
 # Get model 

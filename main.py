@@ -8,6 +8,8 @@ import numpy as np
 import torch 
 
 
+from models import MobileNetV2_UNET
+
 
 
 def main(): 
