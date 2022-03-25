@@ -1,3 +1,8 @@
 # for pytorch 
 
 einops >= 0.4.1
+
+
+
+# for config file 
+hydra-core

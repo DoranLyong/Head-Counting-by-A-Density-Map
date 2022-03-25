@@ -4,19 +4,23 @@ import os.path as osp
 
 import cv2 
 import numpy as np 
+import hydra
+from omegaconf import DictConfig, OmegaConf
 
 import torch 
 
 
-from models import MobileNetV2_UNET
+from models.unet import UNET
 
 
 
-def main(): 
-    print("ready")
+@hydra.main(config_path="./cfg", config_name="default")
+def main(cfg: DictConfig): 
+    print(OmegaConf.to_yaml(cfg))
 
     ### Create model 
     # ---------------------
+    model = UNET(cfg)
 
 
     ### Create optimizer 
