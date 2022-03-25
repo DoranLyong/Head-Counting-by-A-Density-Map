@@ -6,3 +6,7 @@ einops >= 0.4.1
 
 # for config file 
 hydra-core
+
+# for data processing 
+h5py 
+
