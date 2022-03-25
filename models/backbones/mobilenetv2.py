@@ -156,7 +156,7 @@ class MobileNetV2(nn.Module):
     def _initialize_weights(self):
         # (ref) https://blogofth-lee.tistory.com/264
         for m in self.modules(): 
-            print(f"Initialization!!! {m}")
+#            print(f"Initialization!!! {m}")
             
             if isinstance(m, nn.Conv2d): 
                 n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels # kernel elements; h x w x c
@@ -184,7 +184,7 @@ if __name__ == "__main__":
     model = get_model(n_class=5, input_size=224, width_mult=1.)
 #    print(model)
 
-    input = torch.randn(4, 3, 224, 224)
+    input = torch.randn(1, 3, 224, 224)
     output = model(input)
     print(output.size())
 

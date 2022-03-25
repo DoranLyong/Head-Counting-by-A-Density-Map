@@ -20,7 +20,7 @@ def main(cfg: DictConfig):
 
     ### Create model 
     # ---------------------
-    model = UNET(cfg)
+    model = UNET(cfg, mode='train')
 
 
     ### Create optimizer 
