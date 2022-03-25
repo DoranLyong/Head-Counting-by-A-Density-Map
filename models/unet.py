@@ -57,11 +57,10 @@ class UNET(nn.Module):
 
         self.interpolate = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=False)
 
-
-        # Finaly Conv-layer
+        # Density prediction  
         # -----------------------------
         self.conv_last = nn.Conv2d(16, 3, 1) # 1x1 conv; 16-channel -> 3-channel
-        self.conv_score = nn.Conv2d(3, 1, 1) 
+        self.density_pred = nn.Conv2d(3, 1, 1, bias=False) 
 
 
         # init. weigths 
@@ -112,16 +111,12 @@ class UNET(nn.Module):
         up4 = torch.cat([x1, self.dconv[3](up3)], dim=1) # (16*2, 112, 112)
         up4 = self.invres[3](up4) # (16, 112, 112)
 
-        # Final conv 
+        # Density prediction 
         # -----------------------
         x = self.conv_last(up4) # (3, 112, 112)
-        x = self.conv_score(x) # (1, 112, 112)
+        x = self.density_pred(x) # (1, 112, 112)
 
-        if self.mode == 'eval': 
-            x = self.interpolate(x) # (1, 112, 112) -> (1, 224, 224)
-            
-        x = torch.sigmoid(x)
-#        x = torch.nn.Softmax(x)
+        x = self.interpolate(x) # (1, 112, 112) -> (1, 224, 224)            
         return x 
 
     def _init_weights(self): 
@@ -151,7 +146,7 @@ if __name__ == "__main__":
     model = UNET(cfg, mode='eval')
 #    model = UNET(cfg, mode='train')
     
-    input = torch.randn(1, 3, 224, 224)
+    input = torch.randn(1, 3, 480, 640)
     output = model(input)
     print(output.size())
 
