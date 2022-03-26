@@ -1,4 +1,4 @@
-# for pytorch 
+# for pytorch
 
 einops >= 0.4.1
 
@@ -6,13 +6,13 @@ einops >= 0.4.1
 h5py 
 numpy 
 scipy
-
+albumentations
+opencv-python
 
 # for config file 
 hydra-core
 
 # for data downloading  
-
 wget
 
 # for CLI argparse 
