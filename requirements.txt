@@ -2,11 +2,19 @@
 
 einops >= 0.4.1
 
+# for data processing  
+h5py 
+numpy 
+scipy
 
 
 # for config file 
 hydra-core
 
-# for data processing 
-h5py 
+# for data downloading  
+
+wget
+
+# for CLI argparse 
+click 
 
