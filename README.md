@@ -1,5 +1,12 @@
 # Head Counting by A Density Map
 
+## Motivation 
+* [paper reference](https://arxiv.org/abs/2007.09509)
+* [Crowd Counting using Deep Learning (indoor)](https://youtu.be/IBYWu1nslOs)
+* [point tracking](https://www.google.com/search?q=point+tracking+python&client=ms-android-samsung-ss&prmd=vin&sxsrf=APq-WBtB1czqqtwI-ghzPN0GyHiloQT-FQ:1648299727384&source=lnms&tbm=isch&sa=X&ved=2ahUKEwjgr-_96uP2AhVDEXAKHUKOA-oQ_AUoAnoECAEQAg&biw=412&bih=718&dpr=2.63)
+* [ball tracking](https://pyimagesearch.com/2015/09/14/ball-tracking-with-opencv/)
+
+
 In this tutorial, a simple object counter by estimating a density map is included. <br/>
 
 

@@ -41,10 +41,10 @@ def generate_mall_data():
     # create training and validation HDF5 files
     # -----------------------------------------
     train_h5, valid_h5 = create_hdf5('mall',
-                                     train_size=1500,
-                                     valid_size=500,
-                                     img_size=(480, 640),
-                                     in_channels=3) 
+                                    train_size=1500,
+                                    valid_size=500,
+                                    img_size=(480, 640),
+                                    in_channels=3) 
 
 def generate_shanghai_data():
     """Generate HDF5 files for ShanghaiTech dataset."""
@@ -52,10 +52,10 @@ def generate_shanghai_data():
     # create training and validation HDF5 files
     # -----------------------------------------
     train_h5, valid_h5 = create_hdf5('shanghai',
-                                     train_size=300,
-                                     valid_size=100,
-                                     img_size=(480, 640),
-                                     in_channels=3)
+                                    train_size=300,
+                                    valid_size=100,
+                                    img_size=(480, 640),
+                                    in_channels=3)
 
     # load labels infomation from provided MATLAB file
     # it is a numpy array with (x, y) objects position for subsequent frames
