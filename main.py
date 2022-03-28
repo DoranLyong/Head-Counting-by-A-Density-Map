@@ -14,6 +14,7 @@ from albumentations.pytorch import ToTensorV2
 
 
 from models.unet import UNET
+from models.model import UNet
 from utils.data import H5Dataset
 from looper import Looper
 
@@ -29,13 +30,16 @@ if use_cuda:
     torch.cuda.manual_seed(seed)
 
 
-@hydra.main(config_path="./cfg", config_name="default")
-def main(cfg: DictConfig): 
+
+def main(cfg): 
     print(OmegaConf.to_yaml(cfg))
 
     ### Create model 
     # ---------------------
-    model = UNET(cfg, mode='train')
+#    model = UNET(cfg, mode='train')
+    model = UNet(input_filters=3,
+                            filters=64,
+                            N=2)
     model = model.cuda()
     model = nn.DataParallel(model)
 
@@ -51,6 +55,12 @@ def main(cfg: DictConfig):
 
     ### Load resume path if necessary 
     # ---------------------
+    if False:
+        print("===================================================================")
+        print(f'loading checkpoint')
+        checkpoint = torch.load("./backup/mall_mobilenetV2_UNET.pth")
+        model.load_state_dict(checkpoint)
+
 
 
 
@@ -60,18 +70,18 @@ def main(cfg: DictConfig):
     T_train = A.Compose([
             A.HorizontalFlip(p=0.5),
             A.RandomBrightnessContrast(p=0.2),
-            A.Rotate(limit=35, p=0.5),
+#            A.Rotate(limit=35, p=0.5),
             A.VerticalFlip(p=0.5),
-#        A.Normalize(mean=[0.43216, 0.394666, 0.37645], 
-#                    std=[0.22803, 0.22145, 0.216989], 
-#                    max_pixel_value=255.),
+        A.Normalize(mean=[0.43216, 0.394666, 0.37645], 
+                    std=[0.22803, 0.22145, 0.216989], 
+                    max_pixel_value=255.),
             ToTensorV2()
             ])
 
     T_val = A.Compose([
-#        A.Normalize(mean=[0.43216, 0.394666, 0.37645], 
-#                    std=[0.22803, 0.22145, 0.216989], 
-#                    max_pixel_value=255.),        
+        A.Normalize(mean=[0.43216, 0.394666, 0.37645], 
+                    std=[0.22803, 0.22145, 0.216989], 
+                    max_pixel_value=255.),        
         ToTensorV2()])
 
     dataset = dict()
@@ -105,7 +115,7 @@ def main(cfg: DictConfig):
     current_best = np.infty
 
     for epoch in range(cfg.TRAIN.BEGIN_EPOCH, cfg.TRAIN.END_EPOCH + 1):
-        print(f"Epoch {epoch + 1}\n")
+        print(f"Epoch {epoch}\n")
 
         # run training epoch and update learning rate
         train_looper.run()
@@ -117,12 +127,11 @@ def main(cfg: DictConfig):
 
         # update checkpoint if new best is reached
         if result < current_best:
-            current_best = result
-            torch.save(model.state_dict(),
-                       f'{dataset_name}_{network_architecture}.pth')
-
             print(f"\nNew best result: {result}")
-
+            current_best = result
+            print("checkpoint")
+            torch.save(model.state_dict(), f'./backup/{dataset_name}_{network_architecture}.pth')
+            
         print("\n", "-"*80, "\n", sep='')
 
     print(f"[Training done] Best result: {current_best}")
@@ -133,4 +142,5 @@ def main(cfg: DictConfig):
 
 
 if __name__ == "__main__":
-    main()
+    cfg = OmegaConf.load('./cfg/default.yaml')
+    main(cfg)

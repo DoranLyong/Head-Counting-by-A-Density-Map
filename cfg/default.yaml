@@ -1,11 +1,11 @@
 TRAIN: 
-  RESUMET_PATH: 
+  RESUMET_PATH: /home/ubuntu/workspace/BOHO_proj/Head-Counting-by-A-Density-Map/backup/mall_mobilenetV2_UNET.pth
   BATCH_SIZE: 16 
-  LEARNING_RATE: 1e-4 
+  LEARNING_RATE: 1e-5 
   EVALUATE: False
   FINE_TUNE: False 
   BEGIN_EPOCH: 1
-  END_EPOCH: 10 
+  END_EPOCH: 150
 SOLVER:
   MOMENTUM: 0.9
   WEIGHT_DECAY: 5e-4
